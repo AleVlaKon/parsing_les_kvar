@@ -1,13 +1,5 @@
 import json
-
-def change_geometry_type(geometry):
-    geom = geometry
-    # print(geom)
-    # if geom['type'] == 'MULTIPOLYGON':
-    #     geom['type'] = 'MultiPolygon'
-    # elif geom['type'] == 'POLYGON':
-    #     geom['type'] = 'Polygon'
-    return geom
+import requests
 
 
 def make_feature(value):
@@ -25,28 +17,47 @@ def make_feature(value):
             "lesnich": value[8],
             "uch_lesnich": value[9],
             },
-        # "geometry": change_geometry_type(value[4]),
-        "geometry": value[10]
+        "geometry": value[11]
         }
-    
     return feature
 
 
-with open("test.json", "r", encoding="UTF-8") as json_file:
-    data = json.load(json_file)
-    print(len(data["values"]))
+def get_dict_data_from_url(url: str) -> dict:
+    data_text = requests.get(url)
+    return json.loads(data_text.text[27:-1])
 
+
+def get_dict_data_from_file(filename: str) -> dict:
+    with open(filename, "r", encoding="UTF-8") as json_file:
+        data = json.load(json_file)
+        return data
+
+
+def collect_features(sourses:list) -> list:
+    features = []
+    for url in sourses:
+        try:
+            data = get_dict_data_from_url(url)
+            for value in data["values"]:
+                    features.append(make_feature(value))
+        except:
+            print('Ошибочный URL')
+    return features
+
+
+def make_geojson(sourses:list):
     coords = {
         "type": "FeatureCollection",
         "name": "test_qgis",
         "crs": {"type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857"}},
-        "features": [],
+        "features": collect_features(sourses),
     }
 
-    for value in data["values"]:
-        coords["features"].append(make_feature(value))
+    with open('formatted.geojson', 'w', encoding='utf-8') as file:
+        json.dump(coords, file)
 
-                 
-with open('formatted.geojson', 'w', encoding='utf-8') as file:
-    json.dump(coords, file)
 
+with open('urls.txt', encoding='utf-8') as file:
+    sourses = file.readlines()
+
+make_geojson(sourses)
