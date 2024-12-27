@@ -14,13 +14,21 @@ def make_feature(value):
     feature = {
         "type": "Feature",
         "properties": { 
-            "kvartal": value[0],
-            "lesnich": value[1],
-            "uch_lesnich": value[2],
-            "fond": value[3]},
+            "property 1": value[0],
+            "property 2": value[1],
+            "property 3": value[2],
+            "property 4": value[3],
+            "property 5": value[4],
+            "kvartal": value[5],
+            "property 7": value[6],
+            "property 8": value[7],
+            "lesnich": value[8],
+            "uch_lesnich": value[9],
+            },
         # "geometry": change_geometry_type(value[4]),
-        "geometry": value[4]
+        "geometry": value[10]
         }
+    
     return feature
 
 
@@ -41,3 +49,4 @@ with open("test.json", "r", encoding="UTF-8") as json_file:
                  
 with open('formatted.geojson', 'w', encoding='utf-8') as file:
     json.dump(coords, file)
+
